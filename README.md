@@ -18,6 +18,9 @@ yarn install --frozen-lockfile
 yarn docker-compose:dev
 ```
 
+### API swagger
+can be accessed from `http://localhost:3000/doc`
+
 - Access the app at http://localhost:3000.
 - Make file changes and it will automatically rebuild the app.
 
