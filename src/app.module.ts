@@ -4,9 +4,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { OrdersModule } from './orders/orders.module';
 import { configValidationSchema } from './config.schema';
-
+import { NotificationsModule } from './notifications/notifications.module';
+import { KafkaModule } from './common/kafka/kafka.module';
 @Module({
   imports: [
+    KafkaModule.register({
+      clientId: 'dev-client',
+      brokers: ['kafka:9092'],
+      groupId: 'dev-group',
+    }),
     ConfigModule.forRoot({
       envFilePath: [`stage.${process.env.STAGE}.env`],
       validationSchema: configValidationSchema,
@@ -28,6 +34,7 @@ import { configValidationSchema } from './config.schema';
       },
     }),
     OrdersModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [],
