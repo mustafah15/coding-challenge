@@ -26,7 +26,7 @@ can be accessed from `http://localhost:3000/doc`
 ### Running All Tests
 
 ```bash
-yarn docker-compose:test
+  yarn run test
 ```
 
 ## objectives
@@ -52,4 +52,5 @@ only orders service is tested the reason why is that this is almost where all th
 
 ## todos 
 - [ ] add more e2e test
+- [ ] make the CI tests faster by removing kafka
 - [ ] if there enough domain information abstract order into a separate domain class
