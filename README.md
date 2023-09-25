@@ -8,7 +8,6 @@ working local development for NestJs, Kafka, PostgreSQL on top of docker-compose
 - Install npm packages - _for IDE type checking_.
 
 ```bash
-cd nestjs-postgres-boilerplate
 yarn install --frozen-lockfile
 ```
 
@@ -28,12 +27,6 @@ can be accessed from `http://localhost:3000/doc`
 
 ```bash
 yarn docker-compose:test
-```
-
-### Build For Production
-
-```bash
-yarn docker-compose:prod
 ```
 
 ## objectives
@@ -57,3 +50,6 @@ you can find under `/common` a few infrastructure services that serve the follow
 only orders service is tested the reason why is that this is almost where all the logic happens however this is super minimal approach to see through and just make sure all dots are connected and **not enough by any mean for a production service
 **
 
+## todos 
+- [ ] add more e2e test
+- [ ] if there enough domain information abstract order into a separate domain class
