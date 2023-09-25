@@ -1,6 +1,6 @@
-# NestJS Framework Boilerplate (PostgreSQL)
+# coding challenge
 
-A local development setup or boilerplate for [Nest.js framework](https://nestjs.com/) with [PostgreSQL](https://www.postgresql.org/) and [pgAdmin4](https://www.pgadmin.org/) using [Docker Compose](https://docs.docker.com/compose/).
+working local development for NestJs, Kafka, PostgreSQL on top of docker-compose
 
 ## Quick Start
 
@@ -36,5 +36,24 @@ yarn docker-compose:test
 yarn docker-compose:prod
 ```
 
-#### credits 
-forked from [Dominic Arrojado boilerplate](https://github.com/dominicarrojado/nestjs-postgres-boilerplate).
+## objectives
+
+sample REST API for 
+- retrieve all orders
+- get one order by its id
+- create a new order
+
+Order creation will create a new event in kafka topic called `orders.notification` with message type `order.placed`
+Notification service listen to this specific topic and handle the event 
+
+## common infrastructure
+
+you can find under `/common` a few infrastructure services that serve the following cases:
+- kafka decorators which can be used to decorate any function listen to any specific topic 
+- kafka module a global module that expose kafka service that can be used to send different event to the kafka stream
+- filters (entity not found) which catch any entity not found error and return 404 http response 
+
+## testing 
+only orders service is tested the reason why is that this is almost where all the logic happens however this is super minimal approach to see through and just make sure all dots are connected and **not enough by any mean for a production service
+**
+
