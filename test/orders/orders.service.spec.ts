@@ -3,15 +3,22 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 
 import { OrdersService } from '../../src/orders/orders.service';
 import { Order } from '../../src/orders/order.entity';
+import { KafkaService } from '../../src/common/kafka/kafka.service';
+import { CommunicationTopics } from '../../src/communication-topics.enum';
 
 describe('OrdersService', () => {
   let ordersService: OrdersService;
+  let kafkaService: KafkaService;
   let ordersRepository;
 
   const repositoryMockFactory = jest.fn(() => ({
     findOneByOrFail: jest.fn((entity) => entity),
     find: jest.fn((entity) => entity),
     save: jest.fn((entity) => entity),
+  }));
+
+  const kafkaServiceMockFactory = jest.fn(() => ({
+    sendMessage: jest.fn(),
   }));
 
   beforeEach(async () => {
@@ -22,11 +29,16 @@ describe('OrdersService', () => {
           provide: getRepositoryToken(Order),
           useFactory: repositoryMockFactory,
         },
+        {
+          provide: KafkaService,
+          useFactory: kafkaServiceMockFactory,
+        },
       ],
     }).compile();
 
     ordersService = app.get<OrdersService>(OrdersService);
     ordersRepository = app.get(getRepositoryToken(Order));
+    kafkaService = app.get<KafkaService>(KafkaService);
   });
 
   describe('getAllOrders', () => {
@@ -59,11 +71,12 @@ describe('OrdersService', () => {
         products: ['5a5f459b-0568-4c82-aa08-dce96d5a9648'],
         totalPrice: 23,
       };
+      const orderId = '5a5f459b-0568-4c82-aa08-dce96d5a9648';
+
       expect(ordersRepository.save).not.toHaveBeenCalled();
       ordersRepository.save.mockResolvedValue({
         ...orderDto,
-        id: '5a5f459b-0568-4c82-aa08-dce96d5a9648',
-        createdAt: new Date(),
+        id: orderId,
       });
 
       const result = await ordersService.createNewOrder(orderDto);
@@ -71,11 +84,23 @@ describe('OrdersService', () => {
       expect(ordersRepository.save).toHaveBeenCalledWith({
         ...orderDto,
       });
+
       expect(result).toStrictEqual({
         ...orderDto,
-        id: '5a5f459b-0568-4c82-aa08-dce96d5a9648',
-        createdAt: new Date(),
+        id: orderId,
       });
+
+      expect(kafkaService.sendMessage).toHaveBeenCalledWith(
+        CommunicationTopics.ORDER_NOTIFICATIONS_TOPIC,
+        {
+          body: {
+            address: orderDto.shippingAddress,
+            email: orderDto.userEmail,
+          },
+          messageId: orderId,
+          messageType: 'order.placed',
+        },
+      );
     });
   });
 });
